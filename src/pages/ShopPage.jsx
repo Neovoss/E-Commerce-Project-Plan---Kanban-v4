@@ -1,9 +1,26 @@
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { ChevronRight, LayoutGrid, List } from 'lucide-react'
 import ProductCard from '../components/ProductCard.jsx'
-import { categories, products } from '../data/mockData.js'
+import Spinner from '../components/Spinner.jsx'
+import { fetchProducts } from '../store/actions/productActions.js'
+import { FETCH_STATES } from '../store/actions/actionTypes.js'
+import { categoryPath, topCategories } from '../utils/category.js'
 
 export default function ShopPage() {
+  const dispatch = useDispatch()
+  const categories = useSelector((state) => state.product.categories)
+  const productList = useSelector((state) => state.product.productList)
+  const total = useSelector((state) => state.product.total)
+  const limit = useSelector((state) => state.product.limit)
+  const offset = useSelector((state) => state.product.offset)
+  const fetchState = useSelector((state) => state.product.fetchState)
+
+  useEffect(() => {
+    dispatch(fetchProducts({ limit, offset }))
+  }, [dispatch, limit, offset])
+
   return (
     <div className="flex flex-col">
       <div className="flex flex-col items-center gap-4 bg-brand-light px-6 py-8 md:flex-row md:justify-between">
@@ -18,20 +35,20 @@ export default function ShopPage() {
       </div>
 
       <section className="flex flex-col gap-4 bg-brand-light px-6 pb-10 md:flex-row md:flex-wrap md:justify-center">
-        {categories.map((category) => (
+        {topCategories(categories).map((category) => (
           <Link
             key={category.id}
-            to={`/shop/kadin/${category.title.toLowerCase()}/${category.id}`}
+            to={categoryPath(category)}
             className="relative flex h-[220px] w-full items-center justify-center md:w-[220px]"
           >
             <img
-              src={category.image}
+              src={category.img}
               alt={category.title}
               className="absolute inset-0 h-full w-full object-cover brightness-50"
             />
             <span className="relative flex flex-col items-center gap-1 text-white">
               <span className="text-base font-bold">{category.title}</span>
-              <span className="text-sm">{category.subtitle}</span>
+              <span className="text-sm">{Number(category.rating ?? 0).toFixed(2)} puan</span>
             </span>
           </Link>
         ))}
@@ -40,7 +57,7 @@ export default function ShopPage() {
       <section className="flex flex-col items-center gap-6 px-6 py-10">
         <div className="flex w-full flex-col items-center gap-4 md:flex-row md:justify-between">
           <p className="text-sm font-bold text-brand-muted">
-            Showing all {products.length} results
+            Showing {productList.length} of {total} results
           </p>
           <div className="flex items-center gap-3 text-brand-muted">
             <span className="text-sm font-bold">Views:</span>
@@ -71,38 +88,21 @@ export default function ShopPage() {
           </div>
         </div>
 
-        <div className="flex w-full flex-col items-center gap-8 md:flex-row md:flex-wrap md:justify-center">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {fetchState === FETCH_STATES.FETCHING && <Spinner label="Ürünler yükleniyor..." />}
 
-        <div className="flex items-center">
-          <button
-            type="button"
-            className="rounded-l border border-gray-200 bg-brand-light px-5 py-4 text-sm font-bold text-gray-400"
-          >
-            First
-          </button>
-          <button
-            type="button"
-            className="border border-gray-200 bg-brand px-5 py-4 text-sm font-bold text-white"
-          >
-            1
-          </button>
-          <button
-            type="button"
-            className="border border-gray-200 px-5 py-4 text-sm font-bold text-brand"
-          >
-            2
-          </button>
-          <button
-            type="button"
-            className="rounded-r border border-gray-200 px-5 py-4 text-sm font-bold text-brand"
-          >
-            Next
-          </button>
-        </div>
+        {fetchState === FETCH_STATES.FAILED && (
+          <p className="py-16 text-sm font-bold text-brand-danger">
+            Ürünler yüklenemedi, lütfen sayfayı yenileyin.
+          </p>
+        )}
+
+        {fetchState === FETCH_STATES.FETCHED && (
+          <div className="flex w-full flex-col items-center gap-8 md:flex-row md:flex-wrap md:justify-center">
+            {productList.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   )
