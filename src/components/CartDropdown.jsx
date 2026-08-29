@@ -4,11 +4,13 @@ import { Link } from 'react-router-dom'
 import { ShoppingCart, Trash2 } from 'lucide-react'
 import { removeFromCart } from '../store/actions/shoppingCartActions.js'
 import { cartTotals } from '../utils/cart.js'
+import { useTranslation } from '../hooks/useTranslation.js'
 
 const FALLBACK_IMAGE = 'https://picsum.photos/seed/bandage-product/80/80'
 
 export default function CartDropdown() {
   const dispatch = useDispatch()
+  const t = useTranslation()
   const cart = useSelector((state) => state.shoppingCart.cart)
   const [open, setOpen] = useState(false)
 
@@ -19,7 +21,7 @@ export default function CartDropdown() {
     <div className="relative flex flex-col items-center">
       <button
         type="button"
-        aria-label="Shopping cart"
+        aria-label={t.nav.cartLabel}
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
         className="flex items-center gap-1"
@@ -30,10 +32,12 @@ export default function CartDropdown() {
 
       {open && (
         <div className="flex w-full flex-col gap-4 py-4 md:absolute md:right-0 md:top-8 md:z-30 md:w-80 md:rounded md:bg-white md:p-4 md:shadow-lg">
-          <h3 className="text-base font-bold text-brand-dark">Sepetim ({totalCount} ürün)</h3>
+          <h3 className="text-base font-bold text-brand-dark">
+            {t.cart.title} ({totalCount} {t.cart.items})
+          </h3>
 
           {cart.length === 0 ? (
-            <p className="text-sm text-brand-muted">Sepetiniz boş.</p>
+            <p className="text-sm text-brand-muted">{t.cart.emptyShort}</p>
           ) : (
             <>
               <div className="flex max-h-72 flex-col gap-3 overflow-y-auto">
@@ -54,7 +58,7 @@ export default function CartDropdown() {
                     </div>
                     <button
                       type="button"
-                      aria-label={`${item.product.name} ürününü sil`}
+                      aria-label={`${item.product.name} ${t.cart.remove}`}
                       onClick={() => dispatch(removeFromCart(item.product.id))}
                     >
                       <Trash2 size={16} className="text-brand-danger" />
@@ -64,7 +68,7 @@ export default function CartDropdown() {
               </div>
 
               <p className="text-sm font-bold text-brand-dark">
-                Toplam: ${productsTotal.toFixed(2)}
+                {t.cart.total}: ${productsTotal.toFixed(2)}
               </p>
               <div className="flex gap-2">
                 <Link
@@ -72,14 +76,14 @@ export default function CartDropdown() {
                   onClick={() => setOpen(false)}
                   className="flex-1 rounded border border-brand px-4 py-2 text-center text-sm font-bold text-brand"
                 >
-                  Sepete Git
+                  {t.cart.goToCart}
                 </Link>
                 <Link
                   to="/order"
                   onClick={() => setOpen(false)}
                   className="flex-1 rounded bg-brand px-4 py-2 text-center text-sm font-bold text-white"
                 >
-                  Siparişi Tamamla
+                  {t.cart.checkout}
                 </Link>
               </div>
             </>

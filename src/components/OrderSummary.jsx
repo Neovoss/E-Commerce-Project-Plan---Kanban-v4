@@ -1,41 +1,43 @@
 import { useSelector } from 'react-redux'
 import { FREE_SHIPPING_LIMIT } from '../utils/cart.js'
 import { cartTotals } from '../utils/cart.js'
+import { useTranslation } from '../hooks/useTranslation.js'
 
 // T19: urun toplami + kargo - indirim = genel toplam
 export default function OrderSummary({ actionLabel, onAction, disabled = false }) {
+  const t = useTranslation()
   const cart = useSelector((state) => state.shoppingCart.cart)
   const { productsTotal, shipping, discount, grandTotal } = cartTotals(cart)
 
   return (
     <aside className="flex h-fit w-full flex-col gap-4 rounded border border-gray-200 p-6 md:w-80">
-      <h2 className="text-xl font-bold text-brand-dark">Sipariş Özeti</h2>
+      <h2 className="text-xl font-bold text-brand-dark">{t.summary.title}</h2>
 
       <div className="flex items-center justify-between text-sm text-brand-dark">
-        <span>Ürünlerin Toplamı</span>
+        <span>{t.summary.productsTotal}</span>
         <span className="font-bold">${productsTotal.toFixed(2)}</span>
       </div>
 
       <div className="flex items-center justify-between text-sm text-brand-dark">
-        <span>Kargo Toplam</span>
+        <span>{t.summary.shipping}</span>
         <span className="font-bold">${shipping.toFixed(2)}</span>
       </div>
 
       {shipping === 0 && productsTotal > 0 && (
         <p className="text-xs text-brand-success">
-          ${FREE_SHIPPING_LIMIT} ve üzeri kargo bedava
+          ${FREE_SHIPPING_LIMIT} {t.summary.freeShipping}
         </p>
       )}
 
       {discount > 0 && (
         <div className="flex items-center justify-between text-sm text-brand-success">
-          <span>İndirim</span>
+          <span>{t.summary.discount}</span>
           <span className="font-bold">-${discount.toFixed(2)}</span>
         </div>
       )}
 
       <div className="flex items-center justify-between border-t border-gray-200 pt-4 text-base font-bold text-brand-dark">
-        <span>Toplam</span>
+        <span>{t.summary.grandTotal}</span>
         <span className="text-brand-danger">${grandTotal.toFixed(2)}</span>
       </div>
 

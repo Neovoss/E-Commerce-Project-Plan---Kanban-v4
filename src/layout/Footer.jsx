@@ -1,46 +1,49 @@
 import { Link } from 'react-router-dom'
 import SocialIcon from '../components/SocialIcons.jsx'
-
-const FOOTER_COLUMNS = [
-  {
-    title: 'Company Info',
-    links: [
-      { label: 'About Us', to: '/about' },
-      { label: 'Carrier', to: '/about' },
-      { label: 'We are hiring', to: '/team' },
-      { label: 'Blog', to: '/about' },
-    ],
-  },
-  {
-    title: 'Legal',
-    links: [
-      { label: 'About Us', to: '/about' },
-      { label: 'Carrier', to: '/about' },
-      { label: 'We are hiring', to: '/team' },
-      { label: 'Blog', to: '/about' },
-    ],
-  },
-  {
-    title: 'Features',
-    links: [
-      { label: 'Business Marketing', to: '/shop' },
-      { label: 'User Analytic', to: '/shop' },
-      { label: 'Live Chat', to: '/contact' },
-      { label: 'Unlimited Support', to: '/contact' },
-    ],
-  },
-  {
-    title: 'Resources',
-    links: [
-      { label: 'IOS & Android', to: '/shop' },
-      { label: 'Watch a Demo', to: '/shop' },
-      { label: 'Customers', to: '/team' },
-      { label: 'API', to: '/about' },
-    ],
-  },
-]
+import { useTranslation } from '../hooks/useTranslation.js'
 
 export default function Footer() {
+  const t = useTranslation()
+
+  const columns = [
+    {
+      title: t.footer.companyInfo,
+      links: [
+        { label: t.footer.aboutUs, to: '/about' },
+        { label: t.footer.career, to: '/about' },
+        { label: t.footer.hiring, to: '/team' },
+        { label: t.footer.blog, to: '/about' },
+      ],
+    },
+    {
+      title: t.footer.legal,
+      links: [
+        { label: t.footer.aboutUs, to: '/about' },
+        { label: t.footer.career, to: '/about' },
+        { label: t.footer.hiring, to: '/team' },
+        { label: t.footer.blog, to: '/about' },
+      ],
+    },
+    {
+      title: t.footer.features,
+      links: [
+        { label: t.footer.businessMarketing, to: '/shop' },
+        { label: t.footer.userAnalytic, to: '/shop' },
+        { label: t.footer.liveChat, to: '/contact' },
+        { label: t.footer.unlimitedSupport, to: '/contact' },
+      ],
+    },
+    {
+      title: t.footer.resources,
+      links: [
+        { label: t.footer.mobileApps, to: '/shop' },
+        { label: t.footer.watchDemo, to: '/shop' },
+        { label: t.footer.customers, to: '/team' },
+        { label: t.footer.api, to: '/about' },
+      ],
+    },
+  ]
+
   return (
     <footer className="flex flex-col">
       <div className="flex flex-col gap-6 px-6 py-10 md:flex-row md:items-center md:justify-between">
@@ -56,7 +59,7 @@ export default function Footer() {
       </div>
 
       <div className="flex flex-col gap-8 bg-brand-light px-6 py-10 md:flex-row md:flex-wrap md:justify-between">
-        {FOOTER_COLUMNS.map((column) => (
+        {columns.map((column) => (
           <div key={column.title} className="flex flex-col gap-4">
             <h3 className="text-base font-bold text-brand-dark">{column.title}</h3>
             {column.links.map((link) => (
@@ -72,28 +75,23 @@ export default function Footer() {
         ))}
 
         <div className="flex flex-col gap-4">
-          <h3 className="text-base font-bold text-brand-dark">Get In Touch</h3>
+          <h3 className="text-base font-bold text-brand-dark">{t.footer.getInTouch}</h3>
           <div className="flex">
             <input
               type="email"
-              placeholder="Your Email"
+              placeholder={t.footer.emailPlaceholder}
               className="flex-1 rounded-l border border-gray-200 bg-brand-light px-4 py-3 text-sm text-brand-muted"
             />
-            <button
-              type="button"
-              className="rounded-r bg-brand px-5 py-3 text-sm text-white"
-            >
-              Subscribe
+            <button type="button" className="rounded-r bg-brand px-5 py-3 text-sm text-white">
+              {t.footer.subscribe}
             </button>
           </div>
-          <p className="text-xs text-brand-muted">Lore imp sum dolor Amit</p>
+          <p className="text-xs text-brand-muted">{t.footer.subscribeNote}</p>
         </div>
       </div>
 
       <div className="bg-brand-light px-6 py-6">
-        <p className="text-sm font-bold text-brand-muted">
-          Made With Love By Finland All Right Reserved
-        </p>
+        <p className="text-sm font-bold text-brand-muted">Bandage &copy; 2026 · {t.footer.rights}</p>
       </div>
     </footer>
   )

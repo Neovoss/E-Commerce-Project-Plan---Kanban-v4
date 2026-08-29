@@ -6,6 +6,7 @@ import {
   SET_ADDRESS_LIST,
   SET_CREDIT_CARDS,
 } from '../actions/actionTypes.js'
+import { readStoredLanguage } from '../../utils/language.js'
 
 const initialState = {
   user: {},
@@ -13,7 +14,7 @@ const initialState = {
   creditCards: [],
   roles: [],
   theme: 'light',
-  language: 'tr',
+  language: readStoredLanguage(),
 }
 
 export default function clientReducer(state = initialState, action) {

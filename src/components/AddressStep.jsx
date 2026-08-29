@@ -10,6 +10,8 @@ import {
   updateAddress,
 } from '../store/actions/clientActions.js'
 import { CITIES } from '../data/cities.js'
+import { useTranslation } from '../hooks/useTranslation.js'
+import { useLocalizedErrors } from '../hooks/useLocalizedErrors.js'
 
 const TR_PHONE_PATTERN = /^(\+90|0)?5\d{9}$/
 
@@ -25,6 +27,7 @@ const EMPTY_FORM = {
 
 export default function AddressStep({ selectedId, onSelect }) {
   const dispatch = useDispatch()
+  const t = useTranslation()
   const addressList = useSelector((state) => state.client.addressList)
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -33,15 +36,18 @@ export default function AddressStep({ selectedId, onSelect }) {
     register,
     handleSubmit,
     reset,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm({ mode: 'onBlur', defaultValues: EMPTY_FORM })
+
+  useLocalizedErrors(trigger, errors)
 
   useEffect(() => {
     dispatch(fetchAddresses()).catch((error) => {
       console.error('Addresses could not be fetched:', error)
-      toast.error('Adresler yüklenemedi.')
+      toast.error(t.order.addressLoadFailed)
     })
-  }, [dispatch])
+  }, [dispatch, t.order.addressLoadFailed])
 
   const closeForm = () => {
     setFormOpen(false)
@@ -67,25 +73,25 @@ export default function AddressStep({ selectedId, onSelect }) {
     try {
       if (editingId) {
         await dispatch(updateAddress({ id: editingId, ...formData }))
-        toast.success('Adres güncellendi.')
+        toast.success(t.order.addressUpdated)
       } else {
         await dispatch(saveAddress(formData))
-        toast.success('Adres eklendi.')
+        toast.success(t.order.addressSaved)
       }
       closeForm()
     } catch (error) {
       console.error('Address could not be saved:', error)
-      toast.error('Adres kaydedilemedi.')
+      toast.error(t.order.addressSaveFailed)
     }
   }
 
   const handleDelete = async (addressId) => {
     try {
       await dispatch(deleteAddress(addressId))
-      toast.success('Adres silindi.')
+      toast.success(t.order.addressDeleted)
     } catch (error) {
       console.error('Address could not be deleted:', error)
-      toast.error('Adres silinemedi.')
+      toast.error(t.order.addressDeleteFailed)
     }
   }
 
@@ -96,19 +102,19 @@ export default function AddressStep({ selectedId, onSelect }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-brand-dark">Teslimat Adresi</h2>
+        <h2 className="text-xl font-bold text-brand-dark">{t.order.addressTitle}</h2>
         <button
           type="button"
           onClick={() => (formOpen ? closeForm() : setFormOpen(true))}
           className="rounded border border-brand px-4 py-2 text-sm font-bold text-brand"
         >
-          {formOpen ? 'Vazgeç' : 'Adres Ekle'}
+          {formOpen ? t.common.cancel : t.order.addAddress}
         </button>
       </div>
 
       <div className="flex flex-col gap-3">
         {addressList.length === 0 && (
-          <p className="text-sm text-brand-muted">Kayıtlı adresiniz yok, yeni bir adres ekleyin.</p>
+          <p className="text-sm text-brand-muted">{t.order.noAddress}</p>
         )}
 
         {addressList.map((address) => (
@@ -129,12 +135,12 @@ export default function AddressStep({ selectedId, onSelect }) {
                 <span className="text-sm font-bold text-brand-dark">{address.title}</span>
               </div>
               <div className="flex items-center gap-3">
-                <button type="button" aria-label="Adresi düzenle" onClick={() => startEdit(address)}>
+                <button type="button" aria-label={t.order.editAddress} onClick={() => startEdit(address)}>
                   <Pencil size={16} className="text-brand-muted" />
                 </button>
                 <button
                   type="button"
-                  aria-label="Adresi sil"
+                  aria-label={t.order.deleteAddress}
                   onClick={() => handleDelete(address.id)}
                 >
                   <Trash2 size={16} className="text-brand-danger" />
@@ -155,12 +161,12 @@ export default function AddressStep({ selectedId, onSelect }) {
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="flex flex-col gap-1">
             <label htmlFor="title" className="text-sm font-bold text-brand-dark">
-              Adres Başlığı
+              {t.order.addressLabel}
             </label>
             <input
               id="title"
               className={inputClass}
-              {...register('title', { required: 'Adres başlığı zorunludur' })}
+              {...register('title', { required: t.validation.addressTitleRequired })}
             />
             {errors.title && <span className={errorClass}>{errors.title.message}</span>}
           </div>
@@ -168,23 +174,23 @@ export default function AddressStep({ selectedId, onSelect }) {
           <div className="flex flex-col gap-4 md:flex-row">
             <div className="flex flex-1 flex-col gap-1">
               <label htmlFor="name" className="text-sm font-bold text-brand-dark">
-                Ad
+                {t.order.firstName}
               </label>
               <input
                 id="name"
                 className={inputClass}
-                {...register('name', { required: 'Ad zorunludur' })}
+                {...register('name', { required: t.validation.firstNameRequired })}
               />
               {errors.name && <span className={errorClass}>{errors.name.message}</span>}
             </div>
             <div className="flex flex-1 flex-col gap-1">
               <label htmlFor="surname" className="text-sm font-bold text-brand-dark">
-                Soyad
+                {t.order.lastName}
               </label>
               <input
                 id="surname"
                 className={inputClass}
-                {...register('surname', { required: 'Soyad zorunludur' })}
+                {...register('surname', { required: t.validation.lastNameRequired })}
               />
               {errors.surname && <span className={errorClass}>{errors.surname.message}</span>}
             </div>
@@ -192,15 +198,15 @@ export default function AddressStep({ selectedId, onSelect }) {
 
           <div className="flex flex-col gap-1">
             <label htmlFor="phone" className="text-sm font-bold text-brand-dark">
-              Telefon
+              {t.order.phone}
             </label>
             <input
               id="phone"
               placeholder="05XXXXXXXXX"
               className={inputClass}
               {...register('phone', {
-                required: 'Telefon zorunludur',
-                pattern: { value: TR_PHONE_PATTERN, message: 'Geçerli bir telefon numarası girin' },
+                required: t.validation.phoneRequired,
+                pattern: { value: TR_PHONE_PATTERN, message: t.validation.phoneInvalid },
               })}
             />
             {errors.phone && <span className={errorClass}>{errors.phone.message}</span>}
@@ -209,14 +215,14 @@ export default function AddressStep({ selectedId, onSelect }) {
           <div className="flex flex-col gap-4 md:flex-row">
             <div className="flex flex-1 flex-col gap-1">
               <label htmlFor="city" className="text-sm font-bold text-brand-dark">
-                İl
+                {t.order.city}
               </label>
               <select
                 id="city"
                 className={inputClass}
-                {...register('city', { required: 'İl seçimi zorunludur' })}
+                {...register('city', { required: t.validation.cityRequired })}
               >
-                <option value="">Seçiniz</option>
+                <option value="">{t.common.select}</option>
                 {CITIES.map((city) => (
                   <option key={city} value={city.toLowerCase()}>
                     {city}
@@ -227,12 +233,12 @@ export default function AddressStep({ selectedId, onSelect }) {
             </div>
             <div className="flex flex-1 flex-col gap-1">
               <label htmlFor="district" className="text-sm font-bold text-brand-dark">
-                İlçe
+                {t.order.district}
               </label>
               <input
                 id="district"
                 className={inputClass}
-                {...register('district', { required: 'İlçe zorunludur' })}
+                {...register('district', { required: t.validation.districtRequired })}
               />
               {errors.district && <span className={errorClass}>{errors.district.message}</span>}
             </div>
@@ -240,13 +246,13 @@ export default function AddressStep({ selectedId, onSelect }) {
 
           <div className="flex flex-col gap-1">
             <label htmlFor="neighborhood" className="text-sm font-bold text-brand-dark">
-              Mahalle ve adres detayı
+              {t.order.neighborhood}
             </label>
             <textarea
               id="neighborhood"
               rows={3}
               className={inputClass}
-              {...register('neighborhood', { required: 'Adres detayı zorunludur' })}
+              {...register('neighborhood', { required: t.validation.neighborhoodRequired })}
             />
             {errors.neighborhood && (
               <span className={errorClass}>{errors.neighborhood.message}</span>
@@ -258,7 +264,7 @@ export default function AddressStep({ selectedId, onSelect }) {
             disabled={isSubmitting}
             className="rounded bg-brand px-6 py-3 text-sm font-bold text-white disabled:opacity-60"
           >
-            {editingId ? 'Adresi Güncelle' : 'Adresi Kaydet'}
+            {editingId ? t.order.updateAddress : t.order.saveAddress}
           </button>
         </form>
       )}

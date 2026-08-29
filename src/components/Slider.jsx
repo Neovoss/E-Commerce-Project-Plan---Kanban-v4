@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useTranslation } from '../hooks/useTranslation.js'
 
 // Home Page hero slider'ı: otomatik geçiş + ok tuşları + nokta göstergeleri
 export default function Slider({ slides, interval = 6000 }) {
+  const t = useTranslation()
   const [activeIndex, setActiveIndex] = useState(0)
 
   const goTo = (index) => setActiveIndex((index + slides.length) % slides.length)
@@ -22,7 +24,7 @@ export default function Slider({ slides, interval = 6000 }) {
       <button
         type="button"
         onClick={() => goTo(activeIndex - 1)}
-        aria-label="Previous slide"
+        aria-label={t.common.previousSlide}
         className="absolute left-4 top-1/2 z-10 -translate-y-1/2"
       >
         <ChevronLeft size={40} />
@@ -49,7 +51,7 @@ export default function Slider({ slides, interval = 6000 }) {
       <button
         type="button"
         onClick={() => goTo(activeIndex + 1)}
-        aria-label="Next slide"
+        aria-label={t.common.nextSlide}
         className="absolute right-4 top-1/2 z-10 -translate-y-1/2"
       >
         <ChevronRight size={40} />
@@ -60,7 +62,7 @@ export default function Slider({ slides, interval = 6000 }) {
           <button
             key={item.id}
             type="button"
-            aria-label={`Slide ${index + 1}`}
+            aria-label={`${t.common.slide} ${index + 1}`}
             onClick={() => goTo(index)}
             className={`h-3 w-3 rounded-full ${index === activeIndex ? 'bg-white' : 'bg-white/50'}`}
           />

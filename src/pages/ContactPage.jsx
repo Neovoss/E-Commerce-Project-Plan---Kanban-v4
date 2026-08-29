@@ -1,5 +1,6 @@
 import { Phone, Mail, MapPin } from 'lucide-react'
 import SocialIcon from '../components/SocialIcons.jsx'
+import { useTranslation } from '../hooks/useTranslation.js'
 
 const CONTACT_CARDS = [
   { id: 1, Icon: Phone, lines: ['georgia.young@example.com', 'georgia.young@ple.com'] },
@@ -8,18 +9,18 @@ const CONTACT_CARDS = [
 ]
 
 export default function ContactPage() {
+  const t = useTranslation()
+
   return (
     <div className="flex flex-col">
       <section className="flex flex-col items-center gap-8 px-6 py-16 md:flex-row md:justify-center md:gap-20">
         <div className="flex flex-col items-center gap-6 text-center md:items-start md:text-left">
-          <p className="text-base font-bold text-brand-dark">CONTACT US</p>
-          <h1 className="text-4xl font-bold text-brand-dark">Get in touch today!</h1>
-          <p className="max-w-md text-xl text-brand-muted">
-            We know how large objects will act, but things on a small scale.
-          </p>
+          <p className="text-base font-bold text-brand-dark">{t.contact.eyebrow}</p>
+          <h1 className="text-4xl font-bold text-brand-dark">{t.contact.title}</h1>
+          <p className="max-w-md text-xl text-brand-muted">{t.contact.description}</p>
           <div className="flex flex-col gap-1">
-            <p className="text-2xl font-bold text-brand-dark">Phone : +451 215 215</p>
-            <p className="text-2xl font-bold text-brand-dark">Fax : +451 215 215</p>
+            <p className="text-2xl font-bold text-brand-dark">{t.contact.phone} : +451 215 215</p>
+            <p className="text-2xl font-bold text-brand-dark">{t.contact.fax} : +451 215 215</p>
           </div>
           <div className="flex items-center gap-5 text-brand-dark">
             <SocialIcon name="instagram" size={24} />
@@ -30,17 +31,15 @@ export default function ContactPage() {
         </div>
         <img
           src="https://picsum.photos/seed/contact-hero/600/700"
-          alt="Contact"
+          alt={t.contact.title}
           className="h-[350px] w-full object-cover md:h-[550px] md:w-[450px]"
         />
       </section>
 
       <section className="flex flex-col items-center gap-10 px-6 py-16">
         <div className="flex flex-col items-center gap-3 text-center">
-          <p className="text-base font-bold text-brand-dark">VISIT OUR OFFICE</p>
-          <h2 className="text-4xl font-bold text-brand-dark">
-            We help small businesses with big ideas
-          </h2>
+          <p className="text-base font-bold text-brand-dark">{t.contact.officeEyebrow}</p>
+          <h2 className="text-4xl font-bold text-brand-dark">{t.contact.officeTitle}</h2>
         </div>
         <div className="flex w-full flex-col items-center gap-8 md:flex-row md:justify-center">
           {CONTACT_CARDS.map(({ id, Icon, lines }) => (
@@ -54,12 +53,12 @@ export default function ContactPage() {
                   {line}
                 </p>
               ))}
-              <p className="text-base font-bold text-brand-dark">Get Support</p>
+              <p className="text-base font-bold text-brand-dark">{t.contact.getSupport}</p>
               <button
                 type="button"
                 className="rounded-full border border-brand px-8 py-3 text-sm font-bold text-brand"
               >
-                Submit Request
+                {t.contact.submitRequest}
               </button>
             </div>
           ))}

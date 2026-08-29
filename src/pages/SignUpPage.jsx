@@ -6,6 +6,8 @@ import { toast } from 'react-toastify'
 import { Loader2 } from 'lucide-react'
 import api from '../api/axiosInstance.js'
 import { fetchRoles } from '../store/actions/clientActions.js'
+import { useTranslation } from '../hooks/useTranslation.js'
+import { useLocalizedErrors } from '../hooks/useLocalizedErrors.js'
 
 const PASSWORD_PATTERN =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/
@@ -16,6 +18,7 @@ const IBAN_PATTERN = /^TR\d{24}$/
 export default function SignUpPage() {
   const history = useHistory()
   const dispatch = useDispatch()
+  const t = useTranslation()
   const roles = useSelector((state) => state.client.roles)
 
   const {
@@ -24,8 +27,11 @@ export default function SignUpPage() {
     watch,
     getValues,
     setValue,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm({ mode: 'onBlur' })
+
+  useLocalizedErrors(trigger, errors)
 
   const selectedRoleId = watch('role_id')
   const selectedRole = roles.find((role) => String(role.id) === String(selectedRoleId))
@@ -43,9 +49,9 @@ export default function SignUpPage() {
       })
       .catch((error) => {
         console.error('Roles could not be fetched:', error)
-        toast.error('Roller yüklenemedi, lütfen sayfayı yenileyin.')
+        toast.error(t.auth.rolesFailed)
       })
-  }, [dispatch, setValue])
+  }, [dispatch, setValue, t.auth.rolesFailed])
 
   const onSubmit = async (formData) => {
     const payload = {
@@ -66,12 +72,12 @@ export default function SignUpPage() {
 
     try {
       await api.post('/signup', payload)
-      toast.warning('You need to click link in email to activate your account!')
+      toast.warning(t.auth.signupSuccess)
       history.goBack()
     } catch (error) {
       console.error('Signup failed:', error)
       toast.error(
-        error.response?.data?.message ?? 'Kayıt işlemi başarısız oldu, lütfen tekrar deneyin.',
+        error.response?.data?.message ?? t.auth.signupFailed,
       )
     }
   }
@@ -83,20 +89,20 @@ export default function SignUpPage() {
   return (
     <section className="flex flex-col items-center px-6 py-12">
       <div className="flex w-full max-w-lg flex-col gap-6">
-        <h1 className="text-center text-4xl font-bold text-brand-dark">Sign Up</h1>
+        <h1 className="text-center text-4xl font-bold text-brand-dark">{t.auth.signupTitle}</h1>
 
         <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="flex flex-col gap-2">
             <label htmlFor="name" className="text-sm font-bold text-brand-dark">
-              Name
+              {t.auth.name}
             </label>
             <input
               id="name"
               type="text"
               className={inputClass}
               {...register('name', {
-                required: 'İsim zorunludur',
-                minLength: { value: 3, message: 'İsim en az 3 karakter olmalıdır' },
+                required: t.validation.nameRequired,
+                minLength: { value: 3, message: t.validation.nameMin },
               })}
             />
             {errors.name && <span className={errorClass}>{errors.name.message}</span>}
@@ -104,17 +110,17 @@ export default function SignUpPage() {
 
           <div className="flex flex-col gap-2">
             <label htmlFor="email" className="text-sm font-bold text-brand-dark">
-              Email
+              {t.auth.email}
             </label>
             <input
               id="email"
               type="email"
               className={inputClass}
               {...register('email', {
-                required: 'E-posta zorunludur',
+                required: t.validation.emailRequired,
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: 'Geçerli bir e-posta adresi girin',
+                  message: t.validation.emailInvalid,
                 },
               })}
             />
@@ -123,18 +129,18 @@ export default function SignUpPage() {
 
           <div className="flex flex-col gap-2">
             <label htmlFor="password" className="text-sm font-bold text-brand-dark">
-              Password
+              {t.auth.password}
             </label>
             <input
               id="password"
               type="password"
               className={inputClass}
               {...register('password', {
-                required: 'Şifre zorunludur',
+                required: t.validation.passwordRequired,
                 pattern: {
                   value: PASSWORD_PATTERN,
                   message:
-                    'Şifre en az 8 karakter olmalı; rakam, küçük harf, büyük harf ve özel karakter içermeli',
+                    t.validation.passwordPattern,
                 },
               })}
             />
@@ -143,15 +149,15 @@ export default function SignUpPage() {
 
           <div className="flex flex-col gap-2">
             <label htmlFor="passwordConfirm" className="text-sm font-bold text-brand-dark">
-              Password Confirm
+              {t.auth.passwordConfirm}
             </label>
             <input
               id="passwordConfirm"
               type="password"
               className={inputClass}
               {...register('passwordConfirm', {
-                required: 'Şifre tekrarı zorunludur',
-                validate: (value) => value === getValues('password') || 'Şifreler eşleşmiyor',
+                required: t.validation.passwordConfirmRequired,
+                validate: (value) => value === getValues('password') || t.validation.passwordMismatch,
               })}
             />
             {errors.passwordConfirm && (
@@ -161,12 +167,12 @@ export default function SignUpPage() {
 
           <div className="flex flex-col gap-2">
             <label htmlFor="role_id" className="text-sm font-bold text-brand-dark">
-              Role
+              {t.auth.role}
             </label>
             <select
               id="role_id"
               className={inputClass}
-              {...register('role_id', { required: 'Rol seçimi zorunludur' })}
+              {...register('role_id', { required: t.validation.roleRequired })}
             >
               {roles.map((role) => (
                 <option key={role.id} value={role.id}>
@@ -181,15 +187,15 @@ export default function SignUpPage() {
             <div className="flex flex-col gap-5 border-t border-gray-200 pt-5">
               <div className="flex flex-col gap-2">
                 <label htmlFor="storeName" className="text-sm font-bold text-brand-dark">
-                  Store Name
+                  {t.auth.storeName}
                 </label>
                 <input
                   id="storeName"
                   type="text"
                   className={inputClass}
                   {...register('storeName', {
-                    required: 'Mağaza adı zorunludur',
-                    minLength: { value: 3, message: 'Mağaza adı en az 3 karakter olmalıdır' },
+                    required: t.validation.storeNameRequired,
+                    minLength: { value: 3, message: t.validation.storeNameMin },
                   })}
                 />
                 {errors.storeName && <span className={errorClass}>{errors.storeName.message}</span>}
@@ -197,7 +203,7 @@ export default function SignUpPage() {
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="storePhone" className="text-sm font-bold text-brand-dark">
-                  Store Phone
+                  {t.auth.storePhone}
                 </label>
                 <input
                   id="storePhone"
@@ -205,10 +211,10 @@ export default function SignUpPage() {
                   placeholder="05XXXXXXXXX"
                   className={inputClass}
                   {...register('storePhone', {
-                    required: 'Mağaza telefonu zorunludur',
+                    required: t.validation.phoneRequired,
                     pattern: {
                       value: TR_PHONE_PATTERN,
-                      message: 'Geçerli bir Türkiye telefon numarası girin',
+                      message: t.validation.phoneInvalid,
                     },
                   })}
                 />
@@ -219,7 +225,7 @@ export default function SignUpPage() {
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="storeTaxNo" className="text-sm font-bold text-brand-dark">
-                  Store Tax ID
+                  {t.auth.storeTaxNo}
                 </label>
                 <input
                   id="storeTaxNo"
@@ -227,10 +233,10 @@ export default function SignUpPage() {
                   placeholder="TXXXXVXXXXXX"
                   className={inputClass}
                   {...register('storeTaxNo', {
-                    required: 'Vergi numarası zorunludur',
+                    required: t.validation.taxNoRequired,
                     pattern: {
                       value: TAX_NO_PATTERN,
-                      message: 'Vergi numarası TXXXXVXXXXXX formatında olmalıdır',
+                      message: t.validation.taxNoPattern,
                     },
                   })}
                 />
@@ -241,7 +247,7 @@ export default function SignUpPage() {
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="storeBankAccount" className="text-sm font-bold text-brand-dark">
-                  Store Bank Account
+                  {t.auth.storeBankAccount}
                 </label>
                 <input
                   id="storeBankAccount"
@@ -249,10 +255,10 @@ export default function SignUpPage() {
                   placeholder="TR000000000000000000000000"
                   className={inputClass}
                   {...register('storeBankAccount', {
-                    required: 'IBAN zorunludur',
+                    required: t.validation.ibanRequired,
                     pattern: {
                       value: IBAN_PATTERN,
-                      message: 'Geçerli bir IBAN girin (TR + 24 rakam)',
+                      message: t.validation.ibanInvalid,
                     },
                   })}
                 />
@@ -269,7 +275,7 @@ export default function SignUpPage() {
             className="flex items-center justify-center gap-2 rounded bg-brand px-10 py-3 text-sm font-bold text-white disabled:opacity-60"
           >
             {isSubmitting && <Loader2 size={18} className="animate-spin" />}
-            {isSubmitting ? 'Submitting...' : 'Sign Up'}
+            {isSubmitting ? t.auth.signupLoading : t.auth.signupCta}
           </button>
         </form>
       </div>

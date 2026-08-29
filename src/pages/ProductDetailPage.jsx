@@ -8,6 +8,7 @@ import Spinner from '../components/Spinner.jsx'
 import { fetchProduct } from '../store/actions/productActions.js'
 import { addToCart } from '../store/actions/shoppingCartActions.js'
 import { FETCH_STATES } from '../store/actions/actionTypes.js'
+import { useTranslation } from '../hooks/useTranslation.js'
 
 const FALLBACK_IMAGE = 'https://picsum.photos/seed/bandage-product/500/450'
 
@@ -15,6 +16,7 @@ export default function ProductDetailPage() {
   const { productId } = useParams()
   const history = useHistory()
   const dispatch = useDispatch()
+  const t = useTranslation()
 
   const product = useSelector((state) => state.product.product)
   const productList = useSelector((state) => state.product.productList)
@@ -25,15 +27,15 @@ export default function ProductDetailPage() {
   }, [dispatch, productId])
 
   if (fetchState === FETCH_STATES.FETCHING) {
-    return <Spinner label="Ürün yükleniyor..." />
+    return <Spinner label={t.common.productLoading} />
   }
 
   if (!product?.id) {
     return (
       <section className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-24 text-center">
-        <p className="text-xl text-brand-muted">Ürün bulunamadı.</p>
+        <p className="text-xl text-brand-muted">{t.product.notFound}</p>
         <Link to="/shop" className="rounded bg-brand px-8 py-3 text-sm font-bold text-white">
-          Mağazaya dön
+          {t.product.backToShop}
         </Link>
       </section>
     )
@@ -43,7 +45,7 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     dispatch(addToCart(product))
-    toast.success(`${product.name} sepete eklendi.`)
+    toast.success(`${product.name} ${t.product.addedToCart}`)
   }
 
   return (
@@ -54,15 +56,15 @@ export default function ProductDetailPage() {
           onClick={() => history.goBack()}
           className="flex items-center gap-2 text-sm font-bold text-brand-dark"
         >
-          <ChevronLeft size={16} /> Back
+          <ChevronLeft size={16} /> {t.common.back}
         </button>
         <nav className="flex items-center gap-2 text-sm font-bold">
           <Link to="/" className="text-brand-dark">
-            Home
+            {t.nav.home}
           </Link>
           <ChevronRight size={16} className="text-brand-muted" />
           <Link to="/shop" className="text-brand-muted">
-            Shop
+            {t.nav.shop}
           </Link>
         </nav>
       </div>
@@ -96,15 +98,17 @@ export default function ProductDetailPage() {
               />
             ))}
             <span className="text-sm font-bold text-brand-muted">
-              {product.sell_count} satış
+              {product.sell_count} {t.common.sales}
             </span>
           </div>
           <p className="text-2xl font-bold text-brand-dark">
             ${Number(product.price).toFixed(2)}
           </p>
           <p className="text-sm font-bold text-brand-muted">
-            Availability :{' '}
-            <span className="text-brand">{product.stock > 0 ? 'In Stock' : 'Out of Stock'}</span>
+            {t.product.availability} :{' '}
+            <span className="text-brand">
+              {product.stock > 0 ? t.product.inStock : t.product.outOfStock}
+            </span>
           </p>
           <p className="text-sm text-brand-muted">{product.description}</p>
 
@@ -115,20 +119,20 @@ export default function ProductDetailPage() {
               disabled={product.stock <= 0}
               className="rounded bg-brand px-8 py-3 text-sm font-bold text-white disabled:opacity-60"
             >
-              Sepete Ekle
+              {t.common.addToCart}
             </button>
-            <button type="button" aria-label="Add to favorites" className="rounded-full border p-3">
+            <button type="button" aria-label={t.product.favorite} className="rounded-full border p-3">
               <Heart size={20} className="text-brand-muted" />
             </button>
             <button
               type="button"
-              aria-label="Add to cart"
+              aria-label={t.common.addToCart}
               onClick={handleAddToCart}
               className="rounded-full border p-3"
             >
               <ShoppingCart size={20} className="text-brand-muted" />
             </button>
-            <button type="button" aria-label="Quick view" className="rounded-full border p-3">
+            <button type="button" aria-label={t.product.quickView} className="rounded-full border p-3">
               <Eye size={20} className="text-brand-muted" />
             </button>
           </div>
@@ -137,7 +141,7 @@ export default function ProductDetailPage() {
 
       {productList.length > 0 && (
         <section className="flex flex-col items-center gap-8 bg-brand-light px-6 py-16">
-          <h2 className="text-2xl font-bold text-brand-dark">BESTSELLER PRODUCTS</h2>
+          <h2 className="text-2xl font-bold text-brand-dark">{t.product.bestsellers}</h2>
           <div className="flex w-full flex-col items-center gap-8 md:flex-row md:flex-wrap md:justify-center">
             {productList.slice(0, 4).map((item) => (
               <ProductCard key={item.id} product={item} />

@@ -1,12 +1,15 @@
 import SocialIcon from '../components/SocialIcons.jsx'
 import { teamMembers } from '../data/mockData.js'
+import { useTranslation } from '../hooks/useTranslation.js'
 
 export default function TeamPage() {
+  const t = useTranslation()
+
   return (
     <div className="flex flex-col">
       <section className="flex flex-col items-center gap-3 px-6 py-12 text-center">
-        <p className="text-sm font-bold text-brand-muted">WHAT WE DO</p>
-        <h1 className="text-4xl font-bold text-brand-dark">Innovation tailored for you</h1>
+        <p className="text-sm font-bold text-brand-muted">{t.team.eyebrow}</p>
+        <h1 className="text-4xl font-bold text-brand-dark">{t.team.title}</h1>
       </section>
 
       <section className="flex flex-col gap-4 px-6 md:flex-row md:justify-center">
@@ -30,7 +33,7 @@ export default function TeamPage() {
       </section>
 
       <section className="flex flex-col items-center gap-10 px-6 py-16">
-        <h2 className="text-4xl font-bold text-brand-dark">Meet Our Team</h2>
+        <h2 className="text-4xl font-bold text-brand-dark">{t.team.meetTeam}</h2>
         <div className="flex w-full flex-col items-center gap-10 md:flex-row md:flex-wrap md:justify-center">
           {teamMembers.map((member) => (
             <div key={member.id} className="flex flex-col items-center gap-3">
@@ -40,7 +43,7 @@ export default function TeamPage() {
                 className="h-[230px] w-[230px] object-cover"
               />
               <h3 className="text-base font-bold text-brand-dark">{member.name}</h3>
-              <p className="text-sm font-bold text-brand-muted">{member.role}</p>
+              <p className="text-sm font-bold text-brand-muted">{t.team[member.roleKey]}</p>
               <div className="flex items-center gap-5 text-brand">
                 <SocialIcon name="facebook" size={20} />
                 <SocialIcon name="instagram" size={20} />
@@ -52,12 +55,10 @@ export default function TeamPage() {
       </section>
 
       <section className="flex flex-col items-center gap-6 bg-brand-light px-6 py-16 text-center">
-        <h2 className="text-4xl font-bold text-brand-dark">Start your 14 days free trial</h2>
-        <p className="max-w-md text-sm text-brand-muted">
-          Met minim Mollie non desert Alamo est sit cliquey dolor do met sent.
-        </p>
+        <h2 className="text-4xl font-bold text-brand-dark">{t.team.trialTitle}</h2>
+        <p className="max-w-md text-sm text-brand-muted">{t.team.trialText}</p>
         <button type="button" className="rounded bg-brand px-10 py-4 text-sm font-bold text-white">
-          Try it free now
+          {t.team.trialCta}
         </button>
       </section>
     </div>

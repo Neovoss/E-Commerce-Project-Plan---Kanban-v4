@@ -8,15 +8,12 @@ import PaymentStep from '../components/PaymentStep.jsx'
 import OrderSummary from '../components/OrderSummary.jsx'
 import { createOrder } from '../store/actions/orderActions.js'
 import { cartTotals, selectedItems } from '../utils/cart.js'
-
-const STEPS = [
-  { id: 1, label: 'Adres Bilgileri' },
-  { id: 2, label: 'Ödeme Seçenekleri' },
-]
+import { useTranslation } from '../hooks/useTranslation.js'
 
 export default function CreateOrderPage() {
   const dispatch = useDispatch()
   const history = useHistory()
+  const t = useTranslation()
   const cart = useSelector((state) => state.shoppingCart.cart)
   const creditCards = useSelector((state) => state.client.creditCards)
 
@@ -28,9 +25,14 @@ export default function CreateOrderPage() {
 
   const { grandTotal } = cartTotals(cart)
 
+  const steps = [
+    { id: 1, label: t.order.stepAddress },
+    { id: 2, label: t.order.stepPayment },
+  ]
+
   const goToPayment = () => {
     if (!addressId) {
-      toast.warning('Lütfen bir teslimat adresi seçin.')
+      toast.warning(t.order.selectAddress)
       return
     }
     setStep(2)
@@ -39,11 +41,11 @@ export default function CreateOrderPage() {
   const handleCreateOrder = async () => {
     const card = creditCards.find((item) => String(item.id) === String(cardId))
     if (!card) {
-      toast.warning('Lütfen bir ödeme kartı seçin.')
+      toast.warning(t.order.selectCard)
       return
     }
     if (!/^\d{3,4}$/.test(ccv)) {
-      toast.warning('Lütfen geçerli bir CCV girin.')
+      toast.warning(t.order.invalidCcv)
       return
     }
 
@@ -66,11 +68,11 @@ export default function CreateOrderPage() {
     setSubmitting(true)
     try {
       await dispatch(createOrder(payload))
-      toast.success('Siparişiniz alındı, teşekkür ederiz!')
+      toast.success(t.order.orderSuccess)
       history.push('/orders')
     } catch (error) {
       console.error('Order could not be created:', error)
-      toast.error(error.response?.data?.message ?? 'Sipariş oluşturulamadı.')
+      toast.error(error.response?.data?.message ?? t.order.orderFailed)
     } finally {
       setSubmitting(false)
     }
@@ -80,7 +82,7 @@ export default function CreateOrderPage() {
     <section className="flex flex-col gap-8 px-6 py-10 md:flex-row md:items-start md:justify-center">
       <div className="flex flex-1 flex-col gap-6 md:max-w-3xl">
         <nav className="flex items-center gap-4">
-          {STEPS.map((item) => (
+          {steps.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -109,17 +111,17 @@ export default function CreateOrderPage() {
       </div>
 
       {step === 1 ? (
-        <OrderSummary actionLabel="Kaydet ve Devam Et" onAction={goToPayment} />
+        <OrderSummary actionLabel={t.order.continue} onAction={goToPayment} />
       ) : (
         <div className="flex w-full flex-col gap-3 md:w-80">
           <OrderSummary
-            actionLabel={submitting ? 'Gönderiliyor...' : 'Ödeme Yap'}
+            actionLabel={submitting ? t.order.paying : t.order.pay}
             onAction={handleCreateOrder}
             disabled={submitting}
           />
           {submitting && (
             <p className="flex items-center justify-center gap-2 text-sm text-brand-muted">
-              <Loader2 size={16} className="animate-spin" /> Siparişiniz oluşturuluyor
+              <Loader2 size={16} className="animate-spin" /> {t.order.creating}
             </p>
           )}
         </div>

@@ -7,17 +7,11 @@ import Spinner from '../components/Spinner.jsx'
 import { fetchProducts, setFilter, setOffset } from '../store/actions/productActions.js'
 import { FETCH_STATES } from '../store/actions/actionTypes.js'
 import { categoryPath, topCategories } from '../utils/category.js'
-
-const SORT_OPTIONS = [
-  { value: '', label: 'Popularity' },
-  { value: 'price:asc', label: 'Price: Low to High' },
-  { value: 'price:desc', label: 'Price: High to Low' },
-  { value: 'rating:asc', label: 'Rating: Low to High' },
-  { value: 'rating:desc', label: 'Rating: High to Low' },
-]
+import { useTranslation } from '../hooks/useTranslation.js'
 
 export default function ShopPage() {
   const dispatch = useDispatch()
+  const t = useTranslation()
   const { categoryId } = useParams()
 
   const categories = useSelector((state) => state.product.categories)
@@ -34,6 +28,14 @@ export default function ShopPage() {
   const [sortInput, setSortInput] = useState('')
 
   const activeCategory = categories.find((item) => String(item.id) === String(categoryId))
+
+  const sortOptions = [
+    { value: '', label: t.shop.popularity },
+    { value: 'price:asc', label: t.shop.priceAsc },
+    { value: 'price:desc', label: t.shop.priceDesc },
+    { value: 'rating:asc', label: t.shop.ratingAsc },
+    { value: 'rating:desc', label: t.shop.ratingDesc },
+  ]
 
   // category, filter veya sort degistiginde yeni istek atiliyor; digerleri korunuyor
   useEffect(() => {
@@ -73,15 +75,15 @@ export default function ShopPage() {
     <div className="flex flex-col">
       <div className="flex flex-col items-center gap-4 bg-brand-light px-6 py-8 md:flex-row md:justify-between">
         <h1 className="text-2xl font-bold text-brand-dark">
-          {activeCategory ? activeCategory.title : 'Shop'}
+          {activeCategory ? activeCategory.title : t.shop.title}
         </h1>
         <nav className="flex items-center gap-2 text-sm font-bold">
           <Link to="/" className="text-brand-dark">
-            Home
+            {t.nav.home}
           </Link>
           <ChevronRight size={16} className="text-brand-muted" />
           <Link to="/shop" className="text-brand-muted">
-            Shop
+            {t.nav.shop}
           </Link>
           {activeCategory && (
             <>
@@ -106,7 +108,9 @@ export default function ShopPage() {
             />
             <span className="relative flex flex-col items-center gap-1 text-white">
               <span className="text-base font-bold">{category.title}</span>
-              <span className="text-sm">{Number(category.rating ?? 0).toFixed(2)} puan</span>
+              <span className="text-sm">
+                {Number(category.rating ?? 0).toFixed(2)} {t.common.rating}
+              </span>
             </span>
           </Link>
         ))}
@@ -115,14 +119,14 @@ export default function ShopPage() {
       <section className="flex flex-col items-center gap-6 px-6 py-10">
         <div className="flex w-full flex-col items-center gap-4 md:flex-row md:justify-between">
           <p className="text-sm font-bold text-brand-muted">
-            Showing {productList.length} of {total} results
+            {t.shop.showing} {productList.length} {t.shop.of} {total} {t.shop.results}
           </p>
           <div className="flex items-center gap-3 text-brand-muted">
-            <span className="text-sm font-bold">Views:</span>
-            <button type="button" aria-label="Grid view" className="border p-2">
+            <span className="text-sm font-bold">{t.shop.views}:</span>
+            <button type="button" aria-label={t.shop.gridView} className="border p-2">
               <LayoutGrid size={16} />
             </button>
-            <button type="button" aria-label="List view" className="border p-2">
+            <button type="button" aria-label={t.shop.listView} className="border p-2">
               <List size={16} />
             </button>
           </div>
@@ -130,41 +134,41 @@ export default function ShopPage() {
           <form className="flex items-center gap-3" onSubmit={applyFilters}>
             <input
               type="text"
-              aria-label="Filter"
-              placeholder="Ürün ara..."
+              aria-label={t.shop.filterLabel}
+              placeholder={t.shop.filterPlaceholder}
               value={filterInput}
               onChange={(event) => setFilterInput(event.target.value)}
               className="rounded border border-gray-200 bg-brand-light px-4 py-2 text-sm text-brand-muted"
             />
             <select
-              aria-label="Sort"
+              aria-label={t.shop.sortLabel}
               value={sortInput}
               onChange={(event) => setSortInput(event.target.value)}
               className="rounded border border-gray-200 bg-brand-light px-4 py-2 text-sm text-brand-muted"
             >
-              {SORT_OPTIONS.map((option) => (
+              {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
             </select>
             <button type="submit" className="rounded bg-brand px-6 py-2 text-sm font-bold text-white">
-              Filter
+              {t.shop.filter}
             </button>
           </form>
         </div>
 
-        {fetchState === FETCH_STATES.FETCHING && <Spinner label="Ürünler yükleniyor..." />}
+        {fetchState === FETCH_STATES.FETCHING && <Spinner label={t.common.productsLoading} />}
 
         {fetchState === FETCH_STATES.FAILED && (
           <p className="py-16 text-sm font-bold text-brand-danger">
-            Ürünler yüklenemedi, lütfen sayfayı yenileyin.
+            {t.shop.loadFailed}
           </p>
         )}
 
         {fetchState === FETCH_STATES.FETCHED && productList.length === 0 && (
           <p className="py-16 text-sm font-bold text-brand-muted">
-            Aramanızla eşleşen ürün bulunamadı.
+            {t.shop.empty}
           </p>
         )}
 
@@ -177,14 +181,14 @@ export default function ShopPage() {
         )}
 
         {pageCount > 1 && (
-          <nav className="flex items-center" aria-label="Pagination">
+          <nav className="flex items-center" aria-label={t.shop.pagination}>
             <button
               type="button"
               onClick={() => goToPage(1)}
               disabled={currentPage === 1}
               className="rounded-l border border-gray-200 bg-brand-light px-5 py-4 text-sm font-bold text-brand disabled:text-gray-400"
             >
-              First
+              {t.shop.first}
             </button>
             {pageNumbers.map((page) => (
               <button
@@ -205,7 +209,7 @@ export default function ShopPage() {
               disabled={currentPage === pageCount}
               className="rounded-r border border-gray-200 px-5 py-4 text-sm font-bold text-brand disabled:text-gray-400"
             >
-              Next
+              {t.shop.next}
             </button>
           </nav>
         )}

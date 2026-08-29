@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { Pencil, Trash2 } from 'lucide-react'
 import { deleteCard, fetchCards, saveCard, updateCard } from '../store/actions/clientActions.js'
+import { useTranslation } from '../hooks/useTranslation.js'
+import { useLocalizedErrors } from '../hooks/useLocalizedErrors.js'
 
 const CARD_NO_PATTERN = /^\d{16}$/
 const CCV_PATTERN = /^\d{3,4}$/
@@ -13,6 +15,7 @@ const EMPTY_FORM = { card_no: '', expire_month: '', expire_year: '', name_on_car
 
 export default function PaymentStep({ selectedCardId, onSelectCard, ccv, onCcvChange }) {
   const dispatch = useDispatch()
+  const t = useTranslation()
   const creditCards = useSelector((state) => state.client.creditCards)
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -21,15 +24,18 @@ export default function PaymentStep({ selectedCardId, onSelectCard, ccv, onCcvCh
     register,
     handleSubmit,
     reset,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm({ mode: 'onBlur', defaultValues: EMPTY_FORM })
+
+  useLocalizedErrors(trigger, errors)
 
   useEffect(() => {
     dispatch(fetchCards()).catch((error) => {
       console.error('Cards could not be fetched:', error)
-      toast.error('Kartlar yüklenemedi.')
+      toast.error(t.order.cardLoadFailed)
     })
-  }, [dispatch])
+  }, [dispatch, t.order.cardLoadFailed])
 
   const closeForm = () => {
     setFormOpen(false)
@@ -59,25 +65,25 @@ export default function PaymentStep({ selectedCardId, onSelectCard, ccv, onCcvCh
     try {
       if (editingId) {
         await dispatch(updateCard({ id: editingId, ...payload }))
-        toast.success('Kart güncellendi.')
+        toast.success(t.order.cardUpdated)
       } else {
         await dispatch(saveCard(payload))
-        toast.success('Kart eklendi.')
+        toast.success(t.order.cardSaved)
       }
       closeForm()
     } catch (error) {
       console.error('Card could not be saved:', error)
-      toast.error('Kart kaydedilemedi.')
+      toast.error(t.order.cardSaveFailed)
     }
   }
 
   const handleDelete = async (cardId) => {
     try {
       await dispatch(deleteCard(cardId))
-      toast.success('Kart silindi.')
+      toast.success(t.order.cardDeleted)
     } catch (error) {
       console.error('Card could not be deleted:', error)
-      toast.error('Kart silinemedi.')
+      toast.error(t.order.cardDeleteFailed)
     }
   }
 
@@ -88,19 +94,19 @@ export default function PaymentStep({ selectedCardId, onSelectCard, ccv, onCcvCh
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-brand-dark">Ödeme Bilgileri</h2>
+        <h2 className="text-xl font-bold text-brand-dark">{t.order.paymentTitle}</h2>
         <button
           type="button"
           onClick={() => (formOpen ? closeForm() : setFormOpen(true))}
           className="rounded border border-brand px-4 py-2 text-sm font-bold text-brand"
         >
-          {formOpen ? 'Vazgeç' : 'Yeni Kart Ekle'}
+          {formOpen ? t.common.cancel : t.order.addCard}
         </button>
       </div>
 
       <div className="flex flex-col gap-3">
         {creditCards.length === 0 && (
-          <p className="text-sm text-brand-muted">Kayıtlı kartınız yok, yeni bir kart ekleyin.</p>
+          <p className="text-sm text-brand-muted">{t.order.noCard}</p>
         )}
 
         {creditCards.map((card) => (
@@ -127,10 +133,10 @@ export default function PaymentStep({ selectedCardId, onSelectCard, ccv, onCcvCh
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <button type="button" aria-label="Kartı düzenle" onClick={() => startEdit(card)}>
+              <button type="button" aria-label={t.order.editCard} onClick={() => startEdit(card)}>
                 <Pencil size={16} className="text-brand-muted" />
               </button>
-              <button type="button" aria-label="Kartı sil" onClick={() => handleDelete(card.id)}>
+              <button type="button" aria-label={t.order.deleteCard} onClick={() => handleDelete(card.id)}>
                 <Trash2 size={16} className="text-brand-danger" />
               </button>
             </div>
@@ -151,7 +157,7 @@ export default function PaymentStep({ selectedCardId, onSelectCard, ccv, onCcvCh
             placeholder="123"
           />
           {ccv && !CCV_PATTERN.test(ccv) && (
-            <span className={errorClass}>CCV 3 veya 4 rakam olmalıdır</span>
+            <span className={errorClass}>{t.validation.ccvPattern}</span>
           )}
         </div>
       )}
@@ -160,15 +166,15 @@ export default function PaymentStep({ selectedCardId, onSelectCard, ccv, onCcvCh
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="flex flex-col gap-1">
             <label htmlFor="card_no" className="text-sm font-bold text-brand-dark">
-              Kart Numarası
+              {t.order.cardNo}
             </label>
             <input
               id="card_no"
               placeholder="1234123412341234"
               className={inputClass}
               {...register('card_no', {
-                required: 'Kart numarası zorunludur',
-                pattern: { value: CARD_NO_PATTERN, message: 'Kart numarası 16 rakam olmalıdır' },
+                required: t.validation.cardNoRequired,
+                pattern: { value: CARD_NO_PATTERN, message: t.validation.cardNoPattern },
               })}
             />
             {errors.card_no && <span className={errorClass}>{errors.card_no.message}</span>}
@@ -177,14 +183,14 @@ export default function PaymentStep({ selectedCardId, onSelectCard, ccv, onCcvCh
           <div className="flex flex-col gap-4 md:flex-row">
             <div className="flex flex-1 flex-col gap-1">
               <label htmlFor="expire_month" className="text-sm font-bold text-brand-dark">
-                Ay
+                {t.order.month}
               </label>
               <select
                 id="expire_month"
                 className={inputClass}
-                {...register('expire_month', { required: 'Ay seçimi zorunludur' })}
+                {...register('expire_month', { required: t.validation.monthRequired })}
               >
-                <option value="">Ay</option>
+                <option value="">{t.order.month}</option>
                 {Array.from({ length: 12 }, (_, index) => index + 1).map((month) => (
                   <option key={month} value={month}>
                     {String(month).padStart(2, '0')}
@@ -198,14 +204,14 @@ export default function PaymentStep({ selectedCardId, onSelectCard, ccv, onCcvCh
 
             <div className="flex flex-1 flex-col gap-1">
               <label htmlFor="expire_year" className="text-sm font-bold text-brand-dark">
-                Yıl
+                {t.order.year}
               </label>
               <select
                 id="expire_year"
                 className={inputClass}
-                {...register('expire_year', { required: 'Yıl seçimi zorunludur' })}
+                {...register('expire_year', { required: t.validation.yearRequired })}
               >
-                <option value="">Yıl</option>
+                <option value="">{t.order.year}</option>
                 {Array.from({ length: 12 }, (_, index) => CURRENT_YEAR + index).map((year) => (
                   <option key={year} value={year}>
                     {year}
@@ -220,12 +226,12 @@ export default function PaymentStep({ selectedCardId, onSelectCard, ccv, onCcvCh
 
           <div className="flex flex-col gap-1">
             <label htmlFor="name_on_card" className="text-sm font-bold text-brand-dark">
-              Kart Üzerindeki İsim
+              {t.order.nameOnCard}
             </label>
             <input
               id="name_on_card"
               className={inputClass}
-              {...register('name_on_card', { required: 'Kart üzerindeki isim zorunludur' })}
+              {...register('name_on_card', { required: t.validation.nameOnCardRequired })}
             />
             {errors.name_on_card && (
               <span className={errorClass}>{errors.name_on_card.message}</span>
@@ -237,7 +243,7 @@ export default function PaymentStep({ selectedCardId, onSelectCard, ccv, onCcvCh
             disabled={isSubmitting}
             className="rounded bg-brand px-6 py-3 text-sm font-bold text-white disabled:opacity-60"
           >
-            {editingId ? 'Kartı Güncelle' : 'Kartı Kaydet'}
+            {editingId ? t.order.updateCard : t.order.saveCard}
           </button>
         </form>
       )}

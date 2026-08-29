@@ -1,31 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, NavLink } from 'react-router-dom'
-import {
-  Phone,
-  Mail,
-  User,
-  Search,
-  Menu,
-  X,
-  ChevronDown,
-  LogOut,
-} from 'lucide-react'
+import { Phone, Mail, User, Search, Menu, X, ChevronDown, LogOut } from 'lucide-react'
 import SocialIcon from '../components/SocialIcons.jsx'
 import CartDropdown from '../components/CartDropdown.jsx'
+import LanguageSwitcher from '../components/LanguageSwitcher.jsx'
 import { logoutUser } from '../store/actions/clientActions.js'
 import { gravatarUrl } from '../utils/gravatar.js'
-import { categoryPath, GENDER_LABELS } from '../utils/category.js'
-
-const NAV_LINKS = [
-  { to: '/', label: 'Home', exact: true },
-  { to: '/about', label: 'About' },
-  { to: '/team', label: 'Team' },
-  { to: '/contact', label: 'Contact' },
-]
+import { categoryPath } from '../utils/category.js'
+import { useTranslation } from '../hooks/useTranslation.js'
 
 export default function Header() {
   const dispatch = useDispatch()
+  const t = useTranslation()
   const user = useSelector((state) => state.client.user)
   const categories = useSelector((state) => state.product.categories)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -51,10 +38,12 @@ export default function Header() {
     }
   }, [user?.email])
 
-  const groupedCategories = Object.entries(GENDER_LABELS).map(([gender, label]) => ({
-    gender,
-    label,
-    items: categories.filter((category) => category.gender === gender),
+  const groupedCategories = [
+    { gender: 'k', label: t.nav.women },
+    { gender: 'e', label: t.nav.men },
+  ].map((group) => ({
+    ...group,
+    items: categories.filter((category) => category.gender === group.gender),
   }))
 
   const closeAll = () => {
@@ -73,9 +62,9 @@ export default function Header() {
             <Mail size={16} /> michelle.rivera@example.com
           </a>
         </div>
-        <p>Follow Us and get a chance to win 80% off</p>
+        <p>{t.header.promo}</p>
         <div className="flex items-center gap-3">
-          <span>Follow Us :</span>
+          <span>{t.header.followUs} :</span>
           <SocialIcon name="instagram" size={16} />
           <SocialIcon name="youtube" size={16} />
           <SocialIcon name="facebook" size={16} />
@@ -92,7 +81,7 @@ export default function Header() {
             type="button"
             className="text-brand-dark md:hidden"
             onClick={() => setMenuOpen((open) => !open)}
-            aria-label="Menu"
+            aria-label={t.nav.menuLabel}
             aria-expanded={menuOpen}
           >
             {menuOpen ? <X size={28} /> : <Menu size={28} />}
@@ -103,7 +92,7 @@ export default function Header() {
           className={`${menuOpen ? 'flex' : 'hidden'} flex-col items-center gap-8 py-8 text-2xl text-brand-muted md:flex md:flex-row md:gap-6 md:py-0 md:text-sm md:font-bold`}
         >
           <NavLink to="/" exact activeClassName="text-brand-dark" onClick={closeAll}>
-            Home
+            {t.nav.home}
           </NavLink>
 
           <div className="relative flex flex-col items-center">
@@ -113,7 +102,7 @@ export default function Header() {
               onClick={() => setShopOpen((open) => !open)}
               aria-expanded={shopOpen}
             >
-              Shop <ChevronDown size={16} />
+              {t.nav.shop} <ChevronDown size={16} />
             </button>
 
             {shopOpen && (
@@ -133,40 +122,35 @@ export default function Header() {
                     ))}
                   </div>
                 ))}
-                <Link
-                  to="/shop"
-                  className="text-sm font-bold text-brand-muted"
-                  onClick={closeAll}
-                >
-                  Tüm Ürünler
+                <Link to="/shop" className="text-sm font-bold text-brand-muted" onClick={closeAll}>
+                  {t.nav.allProducts}
                 </Link>
               </div>
             )}
           </div>
 
-          {NAV_LINKS.slice(1).map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              activeClassName="text-brand-dark"
-              onClick={closeAll}
-            >
-              {link.label}
-            </NavLink>
-          ))}
+          <NavLink to="/about" activeClassName="text-brand-dark" onClick={closeAll}>
+            {t.nav.about}
+          </NavLink>
+          <NavLink to="/team" activeClassName="text-brand-dark" onClick={closeAll}>
+            {t.nav.team}
+          </NavLink>
+          <NavLink to="/contact" activeClassName="text-brand-dark" onClick={closeAll}>
+            {t.nav.contact}
+          </NavLink>
         </nav>
 
         <div
           className={`${menuOpen ? 'flex' : 'hidden'} flex-col items-center gap-6 pb-8 text-brand md:flex md:flex-row md:gap-4 md:pb-0 md:text-sm md:font-bold`}
         >
+          <LanguageSwitcher />
+
           {isLoggedIn ? (
             <div className="flex items-center gap-3">
-              {isLoggedIn && avatar && (
-                <img src={avatar} alt={user.name} className="h-8 w-8 rounded-full" />
-              )}
+              {avatar && <img src={avatar} alt={user.name} className="h-8 w-8 rounded-full" />}
               <span className="text-sm font-bold text-brand">{user.name}</span>
               <Link to="/orders" className="text-sm font-bold text-brand" onClick={closeAll}>
-                Siparişlerim
+                {t.nav.myOrders}
               </Link>
               <button
                 type="button"
@@ -174,26 +158,28 @@ export default function Header() {
                   dispatch(logoutUser())
                   closeAll()
                 }}
-                aria-label="Logout"
+                aria-label={t.nav.logout}
                 className="flex items-center gap-1 text-sm font-bold text-brand-muted"
               >
-                <LogOut size={16} /> Logout
+                <LogOut size={16} /> {t.nav.logout}
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
               <Link to="/login" className="flex items-center gap-2" onClick={closeAll}>
-                <User size={16} /> Login
+                <User size={16} /> {t.nav.login}
               </Link>
               <span>/</span>
               <Link to="/signup" onClick={closeAll}>
-                Register
+                {t.nav.register}
               </Link>
             </div>
           )}
-          <button type="button" aria-label="Search">
+
+          <button type="button" aria-label={t.nav.searchLabel}>
             <Search size={20} />
           </button>
+
           <CartDropdown />
         </div>
       </div>

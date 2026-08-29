@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Header from './layout/Header.jsx'
@@ -10,6 +10,7 @@ import { fetchCategories } from './store/actions/productActions.js'
 
 function App() {
   const dispatch = useDispatch()
+  const language = useSelector((state) => state.client.language)
 
   useEffect(() => {
     // T11: localStorage'da token varsa otomatik giris
@@ -17,6 +18,10 @@ function App() {
     // T12: kategoriler uygulama acilisinda cekiliyor
     dispatch(fetchCategories())
   }, [dispatch])
+
+  useEffect(() => {
+    document.documentElement.lang = language
+  }, [language])
 
   return (
     <div className="flex min-h-screen flex-col">
