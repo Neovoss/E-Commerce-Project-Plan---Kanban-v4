@@ -1,12 +1,27 @@
+import { useSelector } from 'react-redux'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Heart, ShoppingCart, Eye, Star } from 'lucide-react'
 import ProductCard from '../components/ProductCard.jsx'
-import { products } from '../data/mockData.js'
 
 export default function ProductDetailPage() {
   const { productId } = useParams()
   const history = useHistory()
-  const product = products.find((item) => String(item.id) === String(productId)) ?? products[0]
+  const productList = useSelector((state) => state.product.productList)
+  // T16'da urun dogrudan /products/:id ucundan cekilecek; su an listeden okunuyor
+  const product = productList.find((item) => String(item.id) === String(productId))
+
+  if (!product) {
+    return (
+      <section className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-24 text-center">
+        <p className="text-xl text-brand-muted">Ürün bulunamadı.</p>
+        <Link to="/shop" className="rounded bg-brand px-8 py-3 text-sm font-bold text-white">
+          Mağazaya dön
+        </Link>
+      </section>
+    )
+  }
+
+  const image = product.images?.[0]?.url ?? 'https://picsum.photos/seed/bandage-product/500/450'
 
   return (
     <div className="flex flex-col">
@@ -32,17 +47,14 @@ export default function ProductDetailPage() {
       <section className="flex flex-col gap-8 px-6 py-10 md:flex-row md:justify-center">
         <div className="flex flex-col gap-4">
           <img
-            src={product.image}
+            src={image}
             alt={product.name}
             className="h-[450px] w-full object-cover md:w-[500px]"
           />
           <div className="flex gap-4">
-            <img src={product.image} alt="" className="h-24 w-24 object-cover" />
-            <img
-              src={`https://picsum.photos/seed/product-alt-${product.id}/200/200`}
-              alt=""
-              className="h-24 w-24 object-cover"
-            />
+            {(product.images ?? []).map((item) => (
+              <img key={item.url} src={item.url} alt="" className="h-24 w-24 object-cover" />
+            ))}
           </div>
         </div>
 
@@ -52,25 +64,19 @@ export default function ProductDetailPage() {
             {Array.from({ length: 5 }, (_, index) => (
               <Star key={index} size={20} className="fill-yellow-400 text-yellow-400" />
             ))}
-            <span className="text-sm font-bold text-brand-muted">10 Reviews</span>
+            <span className="text-sm font-bold text-brand-muted">
+              {product.sell_count} satış
+            </span>
           </div>
-          <p className="text-2xl font-bold text-brand-dark">${product.price}</p>
+          <p className="text-2xl font-bold text-brand-dark">
+            ${Number(product.price).toFixed(2)}
+          </p>
           <p className="text-sm font-bold text-brand-muted">
-            Availability : <span className="text-brand">In Stock</span>
+            Availability :{' '}
+            <span className="text-brand">{product.stock > 0 ? 'In Stock' : 'Out of Stock'}</span>
           </p>
-          <p className="text-sm text-brand-muted">
-            Met minim Mollie non desert Alamo est sit cliquey dolor do met sent. RELIT official
-            consequent.
-          </p>
-          <div className="flex items-center gap-2 border-t border-gray-200 pt-6">
-            {product.colors.map((color) => (
-              <span
-                key={color}
-                className="h-8 w-8 rounded-full"
-                style={{ backgroundColor: color }}
-              />
-            ))}
-          </div>
+          <p className="text-sm text-brand-muted">{product.description}</p>
+          <div className="border-t border-gray-200 pt-6" />
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -94,7 +100,7 @@ export default function ProductDetailPage() {
       <section className="flex flex-col items-center gap-8 bg-brand-light px-6 py-16">
         <h2 className="text-2xl font-bold text-brand-dark">BESTSELLER PRODUCTS</h2>
         <div className="flex w-full flex-col items-center gap-8 md:flex-row md:flex-wrap md:justify-center">
-          {products.slice(0, 4).map((item) => (
+          {productList.slice(0, 4).map((item) => (
             <ProductCard key={item.id} product={item} />
           ))}
         </div>

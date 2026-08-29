@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { Loader2 } from 'lucide-react'
 import api from '../api/axiosInstance.js'
+import { fetchRoles } from '../store/actions/clientActions.js'
 
 const PASSWORD_PATTERN =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/
@@ -13,7 +15,8 @@ const IBAN_PATTERN = /^TR\d{24}$/
 
 export default function SignUpPage() {
   const history = useHistory()
-  const [roles, setRoles] = useState([])
+  const dispatch = useDispatch()
+  const roles = useSelector((state) => state.client.roles)
 
   const {
     register,
@@ -29,10 +32,9 @@ export default function SignUpPage() {
   const isStoreSelected = selectedRole?.code === 'store'
 
   useEffect(() => {
-    api
-      .get('/roles')
-      .then(({ data }) => {
-        setRoles(data)
+    // Roller yalnizca bu sayfada ihtiyac oldugunda cekiliyor (T09)
+    dispatch(fetchRoles())
+      .then((data) => {
         // Customer varsayılan olarak seçili gelmeli
         const customer = data.find((role) => role.code === 'customer')
         if (customer) {
@@ -43,7 +45,7 @@ export default function SignUpPage() {
         console.error('Roles could not be fetched:', error)
         toast.error('Roller yüklenemedi, lütfen sayfayı yenileyin.')
       })
-  }, [setValue])
+  }, [dispatch, setValue])
 
   const onSubmit = async (formData) => {
     const payload = {

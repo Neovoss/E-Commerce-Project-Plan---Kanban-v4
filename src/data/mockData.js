@@ -20,24 +20,6 @@ export const heroSlides = [
   },
 ]
 
-export const categories = [
-  { id: 1, title: 'CLOTHS', subtitle: '5 Items', image: 'https://picsum.photos/seed/cat-1/500/600' },
-  { id: 2, title: 'SHOES', subtitle: '5 Items', image: 'https://picsum.photos/seed/cat-2/500/600' },
-  { id: 3, title: 'BAGS', subtitle: '5 Items', image: 'https://picsum.photos/seed/cat-3/500/600' },
-  { id: 4, title: 'ACCESSORIES', subtitle: '5 Items', image: 'https://picsum.photos/seed/cat-4/500/600' },
-  { id: 5, title: 'KIDS', subtitle: '5 Items', image: 'https://picsum.photos/seed/cat-5/500/600' },
-]
-
-export const products = Array.from({ length: 12 }, (_, index) => ({
-  id: index + 1,
-  name: 'Graphic Design',
-  department: 'English Department',
-  oldPrice: 16.48,
-  price: 6.48,
-  colors: ['#23a6f0', '#2dc071', '#e77c40', '#252b42'],
-  image: `https://picsum.photos/seed/product-${index + 1}/480/600`,
-}))
-
 export const teamMembers = [
   {
     id: 1,

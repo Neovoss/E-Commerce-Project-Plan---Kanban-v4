@@ -6,6 +6,7 @@ import ContactPage from '../pages/ContactPage.jsx'
 import TeamPage from '../pages/TeamPage.jsx'
 import AboutUsPage from '../pages/AboutUsPage.jsx'
 import SignUpPage from '../pages/SignUpPage.jsx'
+import LoginPage from '../pages/LoginPage.jsx'
 import NotFoundPage from '../pages/NotFoundPage.jsx'
 
 // Layout pattern: tüm sayfa componentleri ve routing tanımları burada toplanıyor
@@ -26,6 +27,7 @@ export default function PageContent() {
         <Route exact path="/team" component={TeamPage} />
         <Route exact path="/about" component={AboutUsPage} />
         <Route exact path="/signup" component={SignUpPage} />
+        <Route exact path="/login" component={LoginPage} />
         <Route component={NotFoundPage} />
       </Switch>
     </main>

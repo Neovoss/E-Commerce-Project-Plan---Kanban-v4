@@ -1,9 +1,24 @@
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import Slider from '../components/Slider.jsx'
 import ProductCard from '../components/ProductCard.jsx'
-import { heroSlides, categories, products } from '../data/mockData.js'
+import Spinner from '../components/Spinner.jsx'
+import { heroSlides } from '../data/mockData.js'
+import { fetchProducts } from '../store/actions/productActions.js'
+import { FETCH_STATES } from '../store/actions/actionTypes.js'
+import { categoryPath, topCategories } from '../utils/category.js'
 
 export default function HomePage() {
+  const dispatch = useDispatch()
+  const categories = useSelector((state) => state.product.categories)
+  const productList = useSelector((state) => state.product.productList)
+  const fetchState = useSelector((state) => state.product.fetchState)
+
+  useEffect(() => {
+    dispatch(fetchProducts({ limit: 8 }))
+  }, [dispatch])
+
   return (
     <div className="flex flex-col">
       <Slider slides={heroSlides} />
@@ -14,14 +29,14 @@ export default function HomePage() {
           <p className="text-sm text-brand-muted">Problems trying to resolve the conflict between</p>
         </div>
         <div className="flex w-full flex-col gap-4 md:flex-row md:flex-wrap md:justify-center">
-          {categories.map((category) => (
+          {topCategories(categories).map((category) => (
             <Link
               key={category.id}
-              to="/shop"
+              to={categoryPath(category)}
               className="relative flex h-[300px] w-full flex-col justify-end md:h-[500px] md:w-[240px]"
             >
               <img
-                src={category.image}
+                src={category.img}
                 alt={category.title}
                 className="absolute inset-0 h-full w-full object-cover"
               />
@@ -39,11 +54,17 @@ export default function HomePage() {
           <h2 className="text-2xl font-bold text-brand-dark">BESTSELLER PRODUCTS</h2>
           <p className="text-sm text-brand-muted">Problems trying to resolve the conflict between</p>
         </div>
-        <div className="flex w-full flex-col items-center gap-8 md:flex-row md:flex-wrap md:justify-center">
-          {products.slice(0, 8).map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+
+        {fetchState === FETCH_STATES.FETCHING ? (
+          <Spinner label="Ürünler yükleniyor..." />
+        ) : (
+          <div className="flex w-full flex-col items-center gap-8 md:flex-row md:flex-wrap md:justify-center">
+            {productList.slice(0, 8).map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+
         <Link
           to="/shop"
           className="rounded border border-brand px-10 py-4 text-sm font-bold text-brand"
