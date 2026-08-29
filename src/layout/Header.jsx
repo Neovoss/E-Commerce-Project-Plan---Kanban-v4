@@ -6,13 +6,13 @@ import {
   Mail,
   User,
   Search,
-  ShoppingCart,
   Menu,
   X,
   ChevronDown,
   LogOut,
 } from 'lucide-react'
 import SocialIcon from '../components/SocialIcons.jsx'
+import CartDropdown from '../components/CartDropdown.jsx'
 import { logoutUser } from '../store/actions/clientActions.js'
 import { gravatarUrl } from '../utils/gravatar.js'
 import { categoryPath, GENDER_LABELS } from '../utils/category.js'
@@ -165,6 +165,9 @@ export default function Header() {
                 <img src={avatar} alt={user.name} className="h-8 w-8 rounded-full" />
               )}
               <span className="text-sm font-bold text-brand">{user.name}</span>
+              <Link to="/orders" className="text-sm font-bold text-brand" onClick={closeAll}>
+                Siparişlerim
+              </Link>
               <button
                 type="button"
                 onClick={() => {
@@ -191,9 +194,7 @@ export default function Header() {
           <button type="button" aria-label="Search">
             <Search size={20} />
           </button>
-          <button type="button" aria-label="Shopping cart">
-            <ShoppingCart size={20} />
-          </button>
+          <CartDropdown />
         </div>
       </div>
     </header>

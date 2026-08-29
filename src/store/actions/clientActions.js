@@ -65,3 +65,47 @@ export const verifyToken = () => async (dispatch) => {
     return null
   }
 }
+
+// T20: adres islemleri
+export const fetchAddresses = () => async (dispatch) => {
+  const { data } = await api.get('/user/address')
+  dispatch(setAddressList(data))
+  return data
+}
+
+export const saveAddress = (address) => async (dispatch) => {
+  await api.post('/user/address', address)
+  return dispatch(fetchAddresses())
+}
+
+export const updateAddress = (address) => async (dispatch) => {
+  await api.put('/user/address', address)
+  return dispatch(fetchAddresses())
+}
+
+export const deleteAddress = (addressId) => async (dispatch) => {
+  await api.delete(`/user/address/${addressId}`)
+  return dispatch(fetchAddresses())
+}
+
+// T21: kayitli kart islemleri
+export const fetchCards = () => async (dispatch) => {
+  const { data } = await api.get('/user/card')
+  dispatch(setCreditCards(data))
+  return data
+}
+
+export const saveCard = (card) => async (dispatch) => {
+  await api.post('/user/card', card)
+  return dispatch(fetchCards())
+}
+
+export const updateCard = (card) => async (dispatch) => {
+  await api.put('/user/card', card)
+  return dispatch(fetchCards())
+}
+
+export const deleteCard = (cardId) => async (dispatch) => {
+  await api.delete(`/user/card/${cardId}`)
+  return dispatch(fetchCards())
+}
