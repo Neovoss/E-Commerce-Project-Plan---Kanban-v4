@@ -33,22 +33,4 @@ export const teamMembers = [
     role: 'Full Stack Developer',
     image: 'https://picsum.photos/seed/team-berke/400/400',
   },
-  {
-    id: 3,
-    name: 'Username',
-    role: 'Frontend Developer',
-    image: 'https://picsum.photos/seed/team-3/400/400',
-  },
-  {
-    id: 4,
-    name: 'Username',
-    role: 'Backend Developer',
-    image: 'https://picsum.photos/seed/team-4/400/400',
-  },
-  {
-    id: 5,
-    name: 'Username',
-    role: 'UI/UX Designer',
-    image: 'https://picsum.photos/seed/team-5/400/400',
-  },
 ]
