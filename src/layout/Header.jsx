@@ -1,0 +1,90 @@
+import { useState } from 'react'
+import { Link, NavLink } from 'react-router-dom'
+import { Phone, Mail, User, Search, ShoppingCart, Menu, X } from 'lucide-react'
+import SocialIcon from '../components/SocialIcons.jsx'
+
+const NAV_LINKS = [
+  { to: '/', label: 'Home', exact: true },
+  { to: '/shop', label: 'Shop' },
+  { to: '/about', label: 'About' },
+  { to: '/team', label: 'Team' },
+  { to: '/contact', label: 'Contact' },
+]
+
+export default function Header() {
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  return (
+    <header className="flex flex-col">
+      <div className="hidden bg-brand-dark px-6 py-3 text-sm font-bold text-white md:flex md:items-center md:justify-between">
+        <div className="flex items-center gap-6">
+          <a href="tel:+225550000" className="flex items-center gap-2">
+            <Phone size={16} /> (225) 555-0118
+          </a>
+          <a href="mailto:michelle.rivera@example.com" className="flex items-center gap-2">
+            <Mail size={16} /> michelle.rivera@example.com
+          </a>
+        </div>
+        <p>Follow Us and get a chance to win 80% off</p>
+        <div className="flex items-center gap-3">
+          <span>Follow Us :</span>
+          <SocialIcon name="instagram" size={16} />
+          <SocialIcon name="youtube" size={16} />
+          <SocialIcon name="facebook" size={16} />
+          <SocialIcon name="twitter" size={16} />
+        </div>
+      </div>
+
+      <div className="flex flex-col px-6 py-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center justify-between">
+          <Link to="/" className="text-2xl font-bold text-brand-dark">
+            Bandage
+          </Link>
+          <button
+            type="button"
+            className="text-brand-dark md:hidden"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-label="Menu"
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
+
+        <nav
+          className={`${menuOpen ? 'flex' : 'hidden'} flex-col items-center gap-8 py-8 text-2xl text-brand-muted md:flex md:flex-row md:gap-6 md:py-0 md:text-sm md:font-bold`}
+        >
+          {NAV_LINKS.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              exact={link.exact}
+              activeClassName="text-brand-dark"
+              onClick={() => setMenuOpen(false)}
+            >
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div
+          className={`${menuOpen ? 'flex' : 'hidden'} flex-col items-center gap-6 pb-8 text-brand md:flex md:flex-row md:gap-4 md:pb-0 md:text-sm md:font-bold`}
+        >
+          <Link
+            to="/signup"
+            className="flex items-center gap-2"
+            onClick={() => setMenuOpen(false)}
+          >
+            <User size={16} /> Login / Register
+          </Link>
+          <button type="button" aria-label="Search">
+            <Search size={20} />
+          </button>
+          <button type="button" aria-label="Shopping cart">
+            <ShoppingCart size={20} />
+          </button>
+        </div>
+      </div>
+    </header>
+  )
+}
